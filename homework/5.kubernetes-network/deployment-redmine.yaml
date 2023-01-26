@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-redmine
+spec:
+  replicas: 2
+  strategy: 
+    type: Recreate
+  selector:
+    matchLabels:
+      app: redmine
+  template:
+    metadata:
+      labels:
+        app: redmine
+    spec:
+      containers:
+      - image: redmine:4.1.1
+        name: redmine
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        env:
+          - name: REDMINE_DB_USERNAME
+            value: testuser
+          - name: REDMINE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgrsecret
+                key: POSTGRES-PASS
+          - name: REDMINE_DB_DATABASE
+            value: testdatabase
+          - name: REDMINE_DB_POSTGRES
+            value: database-svc
+          - name: REDMINE_SECRET_KEY_BASE
+            valueFrom:
+              secretKeyRef:
+                name: redminesecret
+                key: REDMINE-SECRET
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 3000
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 60
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 3000
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 60
+          initialDelaySeconds: 10
