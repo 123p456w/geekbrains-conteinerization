@@ -27,7 +27,7 @@ spec:
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: mysecret
+                name: postgrsecret
                 key: POSTGRES-PASS
           - name: POSTGRES_DB
             value: testdatabase
@@ -36,6 +36,16 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /var/lib/postgresql/data
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", $POSTGRES_USER, "-d", $POSTGRES_DB]
+          initialDelaySeconds: 15
+          timeoutSeconds: 5
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", $POSTGRES_USER, "-d", $POSTGRES_DB]
+          initialDelaySeconds: 45
+          timeoutSeconds: 5
       volumes:
       - name: data
         persistentVolumeClaim:
