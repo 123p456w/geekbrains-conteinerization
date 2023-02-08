@@ -4,7 +4,7 @@ metadata:
   name: geekbrains
 spec:
   progressDeadlineSeconds: 300
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: app
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: nginx:1.12 # это просто плэйсхолдер
+          image: __IMAGE__ # это просто плэйсхолдер
           env:
             - name: DB_HOST
               value: database
